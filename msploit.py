@@ -23,19 +23,47 @@ Developed by:
 ____________
 ''',"magenta")
 
-help_menu = '''
-help - prints this
-show [options/modules/exploits] - displays selected value(s)
-set [name] [value] - sets $name to $value
-exploit (alt: run) - runs the listener for selected payload
-build (alt: make) - builds the implant for selected payload
-exit - exits msploit
-'''
+help_dict = {
+	'help':'prints a help menu',
+	'use [payload]':'sets $payload as \'payload\'',
+	'set [name] [value]':'sets $name to $value in options',
+	'show [object]':'displays object (available: options, modules, exploits',
+	'build':'builds the selected payload',
+	'exploit':'runs the listener for selected payload',
+	'exit':'exits this program',
+}
+
+def help_menu():
+	for i in help_dict:
+		print(c(i,"magenta") + " - " + c(help_dict[i],"magenta"))
 
 def run_cmd(cmd):
 	return Popen(cmd,stdout=PIPE,shell=True).communicate()[0].decode()
 def error(msg): return c("[!] ","red") + msg
 def info(msg): return c("[*] ","cyan") + msg
+def yorn(msg):
+	pretty = c("y","green") + "/" + c("n","red")
+	ch = input(c("[=] ","yellow") + msg + "? [%s]: " % pretty).lower()
+	while not ch == "y" or ch == "n":
+		ch = input(c("[=] ","yellow") + msg + "? [%s]: " % pretty).lower()
+	if ch == "y": return True
+	elif ch == "n": return False
+
+def list_exploits():
+	ls = Popen("ls",stdout=PIPE,shell=True).communicate()[0].decode().split("\n")
+	for i in ls:
+		try:
+			os.chdir(i)
+			os.chdir("..")
+		except:
+			ls.remove(i)
+	try:
+		ls.remove("msploit.py")
+	except: pass
+	for i in ls:
+		if i.endswith(".py"): ls.remove(i)
+		elif i.endswith(".md"): ls.remove(i)
+	return ls
 
 def check_exists(exploit):
 	files = run_cmd("ls").split("\n")
@@ -70,6 +98,8 @@ def gen_payload(exploit):
 		payload = exploit
 	payload += ".py"
 	os.chdir(oldwd)
+	# obfuscate with: b64, 
+	# add staged payloads?
 	with open(payload,"w") as out_file:
 		out_file.write(tplate)
 	template.close()
@@ -97,7 +127,7 @@ def handle_cmd(cmd):
 	global options
 	if not ' ' in cmd:
 		if cmd == "help":
-			print(help_menu)
+			help_menu()
 			return None
 		elif cmd == "build" or cmd == "make":
 			if options['payload'] == None:
@@ -134,14 +164,10 @@ def handle_cmd(cmd):
 		thing = subcmd[1]
 		if thing == "options":
 			for i in options:
-				print("'%s' : '%s'" % (i,options[i]))
+				print("'%s' : [%s]" % (c(i,"cyan"),c(options[i],"cyan")))
 			return None
 		elif thing == "exploits" or thing == "modules":
-			files = run_cmd("ls").split("\n")
-			try:
-				files.remove("msploit.py")
-				files.remove("payload.py")
-			except: pass
+			files = list_exploits()
 			files = ', '.join(files)
 			print(info("Current modules/exploits: " + files))
 			return None
