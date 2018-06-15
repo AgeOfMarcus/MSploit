@@ -12,7 +12,7 @@ while not "msploit" in wd.split("/"):
 	os.chdir(newdir)
 	wd = os.getcwd()
 
-options_defaults = {'payload':None}
+options_defaults = {'payload':None,'lhost':None,'lport':None}
 
 banner = c('''
 -------------
@@ -25,11 +25,13 @@ ____________
 
 help_dict = {
 	'help':'prints a help menu',
+	'banner':'prints the program\'s banner',
 	'use [payload]':'sets $payload as \'payload\'',
 	'set [name] [value]':'sets $name to $value in options',
 	'show [object]':'displays object (available: options, modules, exploits',
 	'build':'builds the selected payload',
 	'exploit':'runs the listener for selected payload',
+	'clear':'clears the screen',
 	'exit':'exits this program',
 }
 
@@ -129,6 +131,12 @@ def handle_cmd(cmd):
 	if not ' ' in cmd:
 		if cmd == "help":
 			help_menu()
+			return None
+		elif cmd == "banner":
+			print(banner)
+			return None
+		elif cmd == "clear":
+			print("\n"*50)
 			return None
 		elif cmd == "build" or cmd == "make":
 			if options['payload'] == None:
