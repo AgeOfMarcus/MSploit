@@ -15,12 +15,12 @@ while not "msploit" in wd.split("/"):
 options_defaults = {'payload':None,'lhost':None,'lport':None}
 
 banner = c('''
--------------
-|  MSploit! |
--------------
-Developed by:
-  Marcus Weinberger
-____________
+--------------------
+|     MSploit!     |
+|------------------|
+|Developed by:     |
+| Marcus Weinberger|
+--------------------
 ''',"magenta")
 
 help_dict = {
@@ -32,6 +32,7 @@ help_dict = {
 	'build':'builds the selected payload',
 	'exploit':'runs the listener for selected payload',
 	'clear':'clears the screen',
+	'![cmd]':'runs $cmd in the local shell',
 	'exit':'exits this program',
 }
 
@@ -152,6 +153,13 @@ def handle_cmd(cmd):
 			else:
 				run_listener(options['payload'])
 				return None
+		elif list(cmd)[0] == "!":
+			shellcmd = list(cmd)
+			shellcmd.remove(shellcmd[0])
+			shellcmd = ''.join(shellcmd)
+			res = run_cmd(shellcmd)
+			print(res)
+			return None
 		else:
 			print(error("Invalid command"))
 			return None
