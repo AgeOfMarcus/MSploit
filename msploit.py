@@ -66,6 +66,7 @@ def list_exploits():
 	return ls
 
 def check_exists(exploit):
+	os.chdir(wd)
 	files = run_cmd("ls").split("\n")
 	if exploit.endswith("/"):
 		exploit = list(exploit)
